@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'com.capstone'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Official Kafka Client
+    implementation 'org.apache.kafka:kafka-clients:3.6.1'
+    // Jackson for clean JSON parsing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+}
+
+task runConsumer(type: JavaExec) {
+    group = "application"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ReportingConsumer'
+    standardInput = System.in
+    standardOutput = System.out
+    
+    // 🟢 FORCE TASK TO RUN EVERY TIME
+    outputs.upToDateWhen { false }
+}
+
+task runProducer(type: JavaExec) {
+    group = "application"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'SalesProducer'
+    standardInput = System.in
+    standardOutput = System.out
+    
+    // 🟢 FORCE TASK TO RUN EVERY TIME
+    outputs.upToDateWhen { false }
+    
+    if (project.hasProperty('storeName')) {
+        args = [project.property('storeName')]
+    }
+}
