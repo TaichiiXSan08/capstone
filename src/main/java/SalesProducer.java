@@ -33,16 +33,28 @@ public class SalesProducer {
                 Transaction tx = new Transaction(id, storeName, item, amount);
                 String jsonValue = mapper.writeValueAsString(tx);
 
-                ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, String.valueOf(id), jsonValue);
+                // We make a final copy of the ID so the background callback thread can safely access it
+                final int currentTxId = id; 
+
+                ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, String.valueOf(currentTxId), jsonValue);
+                System.out.println("Attempting to send Tx no." + id);
                 producer.send(record, (metadata, exception) -> {
                     if (exception == null) {
                         System.out.println("Sent: " + jsonValue);
                     } else {
-                        exception.printStackTrace();
+                        // 🟢 CUSTOM ERROR LOG WITH TRANSACTION ID
+                        System.out.println("\n==================================================");
+                        System.out.println(" ❌ PRODUCER ERROR DETECTED                       ");
+                        System.out.println("==================================================");
+                        System.out.format( "   [Tx ID]     #%d%n", currentTxId);
+                        System.out.format( "   [Store]     %s%n", storeName);
+                        System.out.format( "   [Status]    FAILED - Retrying in background...%n");
+                        System.out.format( "   [Reason]    %s%n", exception.getMessage());
+                        System.out.println("==================================================\n");
                     }
                 });
 
-                Thread.sleep(1000 + random.nextInt(2000));
+                Thread.sleep(4000 + random.nextInt(2000));
             }
         } finally {
             producer.close();

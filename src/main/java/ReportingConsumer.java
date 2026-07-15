@@ -40,11 +40,22 @@ public class ReportingConsumer {
                     totalRevenue += tx.amount;
                     storeBreakdown.put(tx.source, storeBreakdown.getOrDefault(tx.source, 0.0) + tx.amount);
 
-                    System.out.println("\n---LIVE CONSOLIDATED REPORT ---");
-                    System.out.printf("Total Revenue: $%.2f%n", totalRevenue);
+                    System.out.println("\n==================================================");
+                    System.out.println("  LIVE CONSOLIDATED REPORT                      ");
+                    System.out.println("==================================================");
+                    System.out.println("  LAST TRANSACTION RECEIVED");
+                    System.out.printf("   [ID]     #%d%n", tx.transactionId);
+                    System.out.printf("   [Store]  %s%n", tx.source);
+                    System.out.printf("   [Item]   %s%n", tx.item);
+                    System.out.printf("   [Amount] $%.2f%n", tx.amount);
+                    System.out.println("--------------------------------------------------");
+                    System.out.printf("  TOTAL REVENUE: $%.2f%n", totalRevenue);
+                    System.out.println("--------------------------------------------------");
+                    System.out.println("  REVENUE BY LOCATION:");
                     for (Map.Entry<String, Double> entry : storeBreakdown.entrySet()) {
-                        System.out.printf("  [Store] %s: $%.2f%n", entry.getKey(), entry.getValue());
+                        System.out.printf("    %-15s : $%.2f%n", entry.getKey(), entry.getValue());
                     }
+                    System.out.println("==================================================\n");
                 }
             }
         } finally {
